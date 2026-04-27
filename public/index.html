@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuFix.to Sender - Advanced Email Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-paper-plane"></i>
+                    <h1>LuFix.to <span>Sender</span></h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-icon" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Connected</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="grid-layout">
+                <!-- Left Panel - Server Setup -->
+                <div class="panel server-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-server"></i>
+                        <h2>Server Setup</h2>
+                    </div>
+                    
+                    <div class="panel-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>SMTP Host</label>
+                                <input type="text" id="smtpHost" placeholder="smtp.example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Port</label>
+                                <input type="number" id="smtpPort" value="465">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="smtpUser" placeholder="username@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="smtpPass" placeholder="••••••••">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Security</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="security" value="SSL" checked>
+                                    <span class="radio-custom"></span>
+                                    SSL
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="security" value="TLS">
+                                    <span class="radio-custom"></span>
+                                    TLS
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="security" value="None">
+                                    <span class="radio-custom"></span>
+                                    None
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="useBcc">
+                                <span class="checkmark"></span>
+                                Use BCC Mode
+                            </label>
+                        </div>
+
+                        <button class="btn btn-primary btn-block" onclick="addSMTP()">
+                            <i class="fas fa-plus"></i> Add SMTP Server
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Middle Panel - SMTP List & Config -->
+                <div class="panel smtp-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-list"></i>
+                        <h2>SMTP List</h2>
+                        <button class="btn btn-sm btn-danger" onclick="clearSMTPList()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                    
+                    <div class="panel-body">
+                        <textarea id="smtpList" class="code-editor" placeholder="host|user|pass|port|security&#10;smtp.gmail.com|user@gmail.com|pass123|465|SSL"></textarea>
+                        <div class="smtp-count" id="smtpCount">0 servers configured</div>
+                    </div>
+
+                    <div class="panel-header" style="margin-top: 20px;">
+                        <i class="fas fa-cog"></i>
+                        <h2>Advanced Settings</h2>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Change SMTP Every</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="changeSmtpEvery" value="1" min="1">
+                                    <span class="suffix">emails</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Reconnect After</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="reconnectAfter" value="0" min="0">
+                                    <span class="suffix">emails</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Pause Duration</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="pauseSeconds" value="0" min="0">
+                                    <span class="suffix">seconds</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Pause Every</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="pauseEvery" value="1" min="1">
+                                    <span class="suffix">emails</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Message Setup -->
+                <div class="panel message-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-envelope"></i>
+                        <h2>Message Setup</h2>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Sender Email</label>
+                                <input type="email" id="senderEmail" placeholder="sender@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Sender Name</label>
+                                <input type="text" id="senderName" placeholder="Support Team">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Reply-To</label>
+                                <input type="email" id="replyTo" placeholder="reply@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Priority</label>
+                                <select id="priority">
+                                    <option value="normal">Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" id="subject" placeholder="Email Subject">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Message Body</label>
+                            <div class="editor-toolbar">
+                                <button type="button" onclick="toggleEditorMode()" class="btn btn-sm">
+                                    <i class="fas fa-code"></i> <span id="editorMode">HTML</span>
+                                </button>
+                                <label class="checkbox-label inline">
+                                    <input type="checkbox" id="debugMode">
+                                    <span class="checkmark"></span>
+                                    Debug Mode
+                                </label>
+                            </div>
+                            <textarea id="messageBody" class="message-editor" rows="8" placeholder="Enter your message here..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Encoding</label>
+                                <select id="encoding">
+                                    <option value="UTF-8">UTF-8</option>
+                                    <option value="ISO-8859-1">ISO-8859-1</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <input type="file" id="attachment" class="file-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Recipients (one per line)</label>
+                            <textarea id="recipients" rows="6" placeholder="recipient1@example.com&#10;recipient2@example.com"></textarea>
+                            <div class="recipient-count" id="recipientCount">0 recipients</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-panel">
+                <div class="progress-header">
+                    <h3><i class="fas fa-chart-line"></i> Campaign Progress</h3>
+                    <div class="progress-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="statTotal">0</span>
+                            <span class="stat-label">Total</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value success" id="statSent">0</span>
+                            <span class="stat-label">Sent</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value danger" id="statFailed">0</span>
+                            <span class="stat-label">Failed</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="statProgress">0%</span>
+                            <span class="stat-label">Progress</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success btn-lg" id="startBtn" onclick="startSending()">
+                        <i class="fas fa-play"></i> Start Sending
+                    </button>
+                    <button class="btn btn-danger btn-lg" id="stopBtn" onclick="stopSending()" disabled>
+                        <i class="fas fa-stop"></i> Stop Sending
+                    </button>
+                </div>
+            </div>
+
+            <!-- Console/Log Section -->
+            <div class="console-panel">
+                <div class="console-header">
+                    <h3><i class="fas fa-terminal"></i> Activity Log</h3>
+                    <div class="console-actions">
+                        <button class="btn btn-sm" onclick="clearConsole()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button class="btn btn-sm" onclick="exportLog()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="console-body" id="consoleLog">
+                    <div class="log-entry info">
+                        <span class="log-time">--:--:--</span>
+                        <span class="log-message">System ready. Configure SMTP servers and start sending.</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
