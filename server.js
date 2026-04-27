@@ -42,33 +42,32 @@ function broadcast(data) {
   });
 }
 
-// ✅ FIXED: Create SMTP transporter with modern TLS settings
+// ✅ FIXED: Create transporter with modern TLS & longer timeouts
 function createTransporter(smtpConfig) {
   const security = smtpConfig.security.toLowerCase();
   const isSSL = security === 'ssl';
-  const isTLS = security === 'tls';
   
   return nodemailer.createTransport({
     host: smtpConfig.host,
     port: parseInt(smtpConfig.port),
-    secure: isSSL, // true for 465, false for 587
+    secure: isSSL,
     auth: {
       user: smtpConfig.username,
       pass: smtpConfig.password
     },
-    // ✅ Modern TLS config - removed insecure SSLv3
+    // ✅ Modern TLS settings (removed insecure SSLv3)
     tls: {
-      rejectUnauthorized: false, // Keep false if using self-signed certs
-      minVersion: 'TLSv1.2'      // ✅ Require modern TLS
+      rejectUnauthorized: false,
+      minVersion: 'TLSv1.2'
     },
-    // ✅ Increased timeouts for cloud environments
-    connectionTimeout: 30000,    // 30 seconds
-    socketTimeout: 30000,        // 30 seconds
+    // ✅ Increased timeouts for cloud environments like Render
+    connectionTimeout: 30000,
+    socketTimeout: 30000,
     gsocketTimeout: 30000
   });
 }
 
-// ✅ FIXED: Send email with retry logic
+// ✅ FIXED: Send email with retry logic for transient errors
 async function sendEmail(smtpConfig, emailData, attachmentPath, retryCount = 0) {
   const maxRetries = 2;
   
@@ -76,10 +75,7 @@ async function sendEmail(smtpConfig, emailData, attachmentPath, retryCount = 0) 
     const transporter = createTransporter(smtpConfig);
     
     const mailOptions = {
-      from: {
-        name: emailData.senderName || 'Sender',
-        address: emailData.senderEmail
-      },
+      from: { name: emailData.senderName || 'Sender', address: emailData.senderEmail },
       to: emailData.recipient,
       subject: emailData.subject,
       replyTo: emailData.replyTo,
@@ -97,19 +93,18 @@ async function sendEmail(smtpConfig, emailData, attachmentPath, retryCount = 0) 
       mailOptions.attachments = [{ path: attachmentPath }];
     }
 
-    if (emailData.useBcc && emailData.bccList && emailData.bccList.length > 0) {
+    if (emailData.useBcc && emailData.bccList?.length > 0) {
       mailOptions.bcc = emailData.bccList;
     }
 
-    const info = await transporter.sendMail(mailOptions);
-    return info;
+    return await transporter.sendMail(mailOptions);
     
   } catch (error) {
     // ✅ Retry on timeout/network errors
     if (retryCount < maxRetries && 
-        (error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT' || error.message.includes('Timeout'))) {
+        (error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT' || error.message?.includes('Timeout'))) {
       console.log(`⏳ Retry ${retryCount + 1}/${maxRetries} for ${emailData.recipient}`);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+      await new Promise(resolve => setTimeout(resolve, 2000));
       return sendEmail(smtpConfig, emailData, attachmentPath, retryCount + 1);
     }
     throw error;
@@ -135,13 +130,14 @@ async function processQueue(config) {
     const email = emailQueue[i];
     currentStats.current = i + 1;
 
-    // Rotate SMTP
+    // ✅ FIXED: Proper logical operators (was: & &)
     if (emailsSentOnCurrentSmtp >= config.changeSmtpEvery && config.changeSmtpEvery > 0) {
       smtpIndex = (smtpIndex + 1) % smtpList.length;
       emailsSentOnCurrentSmtp = 0;
       broadcast({ type: 'smtp_rotate', index: smtpIndex });
     }
 
+    // ✅ FIXED: Variable name typo (was: smtpI ndex)
     const currentSmtp = smtpList[smtpIndex];
 
     try {
@@ -246,12 +242,7 @@ app.post('/api/start', upload.single('attachment'), async (req, res) => {
       bccList: config.useBcc === 'true' ? recipients.filter(r => r !== recipient) : []
     }));
 
-    currentStats = {
-      total: emailQueue.length,
-      sent: 0,
-      failed: 0,
-      current: 0
-    };
+    currentStats = { total: emailQueue.length, sent: 0, failed: 0, current: 0 };
 
     const processConfig = {
       smtpList,
@@ -278,11 +269,7 @@ app.post('/api/stop', (req, res) => {
 });
 
 app.get('/api/stats', (req, res) => {
-  res.json({
-    isSending,
-    stats: currentStats,
-    queueLength: emailQueue.length
-  });
+  res.json({ isSending, stats: currentStats, queueLength: emailQueue.length });
 });
 
 // WebSocket connection
@@ -293,5 +280,5 @@ wss.on('connection', (ws) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`🚀 Email Sender running on http://localhost:${PORT}`);
+  console.log(`🚀 Email Sender running on port ${PORT}`);
 });
