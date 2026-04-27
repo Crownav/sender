@@ -8,7 +8,312 @@ const HTML_TEMPLATES = [
   { id: 'welcome', name: '📧 Welcome Email', content: `<h1 style="color: #3b82f6;">Welcome to Our Platform!</h1><p>Hi there,</p><p>Thank you for joining us. We're excited to have you on board.</p><p>Best regards,<br>The Team</p>` },
   { id: 'promo', name: '🔥 Special Promotion', content: `<div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;"><h2 style="color: #ef4444; margin-top: 0;">🎉 Limited Time Offer!</h2><p>Get <strong>50% OFF</strong> your next purchase.</p><p>Use code: <code style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px;">SAVE50</code></p></div>` },
   { id: 'newsletter', name: '📰 Monthly Newsletter', content: `<h2>📅 This Month's Updates</h2><ul><li>Feature 1 released</li><li>Community growth: +20%</li><li>Upcoming webinar</li></ul><p>Stay tuned for more!</p>` },
-  { id: 'transactional', name: '🔑 Password Reset', content: `<p>Hello,</p><p>We received a request to reset your password. Click below to proceed:</p><p><a href="#" style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p><p><small>If you didn't request this, please ignore this email.</small></p>` }
+  { id: 'transactional', name: '🔑 Password Reset', content: `<p>Hello,</p><p>We received a request to reset your password. Click below to proceed:</p><p><a href="#" style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p><p><small>If you didn't request this, please ignore this email.</small></p>` },
+  { id: 'Investigation', name: ' Transaction Info', content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sting Operation Confirmation</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #e5e5e5;
+    }
+
+    .top-bar {
+        background: #000;
+        color: #fff;
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .top-bar .left {
+        font-weight: bold;
+    }
+
+    .confidential {
+        background: #111;
+        color: #fff;
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin: 20px 40px;
+    }
+
+    .container {
+        background: #fff;
+        margin: 0 40px 40px 40px;
+        padding: 30px;
+        border: 2px solid #000;
+    }
+
+    .section {
+        border: 2px solid #000;
+        margin-bottom: 25px;
+    }
+
+    .section-header {
+        background: #000;
+        color: #fff;
+        padding: 10px 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-body {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .field {
+        margin-bottom: 12px;
+    }
+
+    .label {
+        font-size: 12px;
+        color: #555;
+        text-transform: uppercase;
+    }
+
+    .value {
+        font-weight: bold;
+        margin-top: 3px;
+    }
+
+    .laws-list {
+        border-top: 1px solid #ccc;
+    }
+
+    .law-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    .notice {
+        background: #f2f2f2;
+        border: 1px solid #ccc;
+        padding: 15px;
+        font-size: 12px;
+        margin-top: 20px;
+    }
+
+    .print-btn {
+        display: block;
+        margin: 25px auto 0 auto;
+        background: #000;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .footer-doc {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin-top: 20px;
+    }
+
+    .active-badge {
+        background: #000;
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="left">
+        U.S. DEPARTMENT OF JUSTICE<br>
+        <span style="font-weight: normal;">Federal Bureau of Investigation</span>
+    </div>
+    <div>FBI-2026-FRD-4891027</div>
+</div>
+
+<div class="confidential">
+    CONFIDENTIAL – LAW ENFORCEMENT SENSITIVE
+</div>
+
+<div class="container">
+
+    <!-- Sting Operation Confirmation -->
+    <div class="section">
+        <div class="section-header">
+            STING OPERATION CONFIRMATION
+            <span class="active-badge">ACTIVE</span>
+        </div>
+        <div class="section-body grid-2">
+            <div>
+                <div class="field">
+                    <div class="label">Case Number</div>
+                    <div class="value">FBI-2026-FRD-4891027</div>
+                </div>
+                <div class="field">
+                    <div class="label">Date Initiated</div>
+                    <div class="value">April 24, 2026</div>
+                </div>
+            </div>
+            <div>
+                <div class="field">
+                    <div class="label">Operation Code</div>
+                    <div class="value">STING-OP-STANLEY-2026</div>
+                </div>
+                <div class="field">
+                    <div class="label">Date Confirmed</div>
+                    <div class="value">April 24, 2026</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Under Investigation -->
+    <div class="section">
+        <div class="section-header">SUBJECT UNDER INVESTIGATION</div>
+        <div class="section-body">
+            <div class="field">
+                <div class="label">Name</div>
+                <div class="value">Merle Stanley Smart</div>
+            </div>
+            <div class="field">
+                <div class="label">Position</div>
+                <div class="value">Bank Manager – Fraud Prevention Division</div>
+            </div>
+            <div class="field">
+                <div class="label">Institution</div>
+                <div class="value">People's Bank</div>
+            </div>
+            <div class="field">
+                <div class="label">Allegation</div>
+                <div class="value">Attempted Fraudulent Wire Transfer</div>
+            </div>
+			<div class="field">
+                <div class="label">Amount</div>
+                <div class="value">9568.81</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attempted Wire Transfer -->
+    <div class="section">
+        <div class="section-header">ATTEMPTED FRAUDULENT WIRE TRANSFER</div>
+        <div class="section-body grid-2">
+            <div>
+                <div>
+    <div class="field">
+        <div class="label">Name</div>
+        <div class="value">Merle Stanley Smart</div>
+    </div>
+    <div class="field">
+        <div class="label">Age</div>
+        <div class="value">81</div>
+    </div>
+</div>
+
+<div>
+    <div class="field">
+        <div class="label">Location</div>
+        <div class="value">Stockton, CA</div>
+    </div>
+    <div class="field">
+        <div class="label">Phone</div>
+        <div class="value">(270) 2995250</div>
+    </div>
+</div><div class="field">
+                    <div class="label">Wire Origin / Victim</div>
+                    <div class="value">Doris Vaugn</div>
+                </div>
+                <div class="field">
+                    <div class="label">Email</div>
+                    <div class="value">dorisvaughn@windstream.net</div>
+                </div>
+            </div>
+            <div>
+                <div class="field">
+                    <div class="label">Address</div>
+                    <div class="value">
+                        13126 Droxford St,<br>
+                        Cerritos, CA 90703
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Federal Laws Violated -->
+    <div class="section">
+        <div class="section-header">FEDERAL LAWS VIOLATED</div>
+        <div class="section-body laws-list">
+
+            <div class="law-row">
+                <div>18 U.S.C. § 1343 – Wire Fraud</div>
+                <div>Up to 20-30 years</div>
+            </div>
+
+            <div class="law-row">
+                <div>18 U.S.C. § 1344 – Bank Fraud</div>
+                <div>Up to 30 years, $1M fine</div>
+            </div>
+
+            <div class="law-row">
+                <div>18 U.S.C. § 1956 – Money Laundering</div>
+                <div>Up to 20 years</div>
+            </div>
+
+            <div class="law-row">
+                <div>18 U.S.C. § 1957 – Monetary Transactions (Unlawful)</div>
+                <div>Up to 10 years</div>
+            </div>
+
+            <div class="law-row">
+                <div>18 U.S.C. § 371 – Conspiracy to Defraud U.S.</div>
+                <div>Up to 5 years</div>
+            </div>
+
+            <div class="law-row">
+                <div>18 U.S.C. § 1349 – Attempt/Conspiracy (Wire/Bank)</div>
+                <div>Same as offense</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="notice">
+        <strong>NOTICE:</strong> This is a MOCK-UP document for educational purposes only.
+        This does not represent an actual federal investigation.
+        Creating false official documents is a federal crime under 18 U.S.C. § 1017.
+    </div>
+
+   
+
+    <div class="footer-doc">
+        DOC-1769636633515 | 1/28/2026
+    </div>
+
+</div>
+
+</body>
+</html>` }
 ];
 
 // Initialize
