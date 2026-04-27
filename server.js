@@ -31,12 +31,7 @@ if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
 // Global state
 let emailQueue = [];
 let isSending = false;
-let currentStats = {
-  total: 0,
-  sent: 0,
-  failed: 0,
-  current: 0
-};
+let currentStats = { total: 0, sent: 0, failed: 0, current: 0 };
 
 // WebSocket broadcast
 function broadcast(data) {
@@ -47,59 +42,78 @@ function broadcast(data) {
   });
 }
 
-// Create SMTP transporter
+// ✅ FIXED: Create SMTP transporter with modern TLS settings
 function createTransporter(smtpConfig) {
   const security = smtpConfig.security.toLowerCase();
+  const isSSL = security === 'ssl';
+  const isTLS = security === 'tls';
+  
   return nodemailer.createTransport({
     host: smtpConfig.host,
     port: parseInt(smtpConfig.port),
-    secure: security === 'ssl',
+    secure: isSSL, // true for 465, false for 587
     auth: {
       user: smtpConfig.username,
       pass: smtpConfig.password
     },
+    // ✅ Modern TLS config - removed insecure SSLv3
     tls: {
-      rejectUnauthorized: false,
-      ciphers: 'SSLv3'
+      rejectUnauthorized: false, // Keep false if using self-signed certs
+      minVersion: 'TLSv1.2'      // ✅ Require modern TLS
     },
-    connectionTimeout: 10000,
-    socketTimeout: 10000
+    // ✅ Increased timeouts for cloud environments
+    connectionTimeout: 30000,    // 30 seconds
+    socketTimeout: 30000,        // 30 seconds
+    gsocketTimeout: 30000
   });
 }
 
-// Send single email
-async function sendEmail(smtpConfig, emailData, attachmentPath) {
-  const transporter = createTransporter(smtpConfig);
+// ✅ FIXED: Send email with retry logic
+async function sendEmail(smtpConfig, emailData, attachmentPath, retryCount = 0) {
+  const maxRetries = 2;
   
-  const mailOptions = {
-    from: {
-      name: emailData.senderName || 'Sender',
-      address: emailData.senderEmail
-    },
-    to: emailData.recipient,
-    subject: emailData.subject,
-    replyTo: emailData.replyTo,
-    priority: emailData.priority || 'normal',
-    charset: emailData.charset || 'UTF-8'
-  };
+  try {
+    const transporter = createTransporter(smtpConfig);
+    
+    const mailOptions = {
+      from: {
+        name: emailData.senderName || 'Sender',
+        address: emailData.senderEmail
+      },
+      to: emailData.recipient,
+      subject: emailData.subject,
+      replyTo: emailData.replyTo,
+      priority: emailData.priority || 'normal',
+      charset: emailData.charset || 'UTF-8'
+    };
 
-  if (emailData.isHtml) {
-    mailOptions.html = emailData.message;
-  } else {
-    mailOptions.text = emailData.message;
+    if (emailData.isHtml) {
+      mailOptions.html = emailData.message;
+    } else {
+      mailOptions.text = emailData.message;
+    }
+
+    if (attachmentPath) {
+      mailOptions.attachments = [{ path: attachmentPath }];
+    }
+
+    if (emailData.useBcc && emailData.bccList && emailData.bccList.length > 0) {
+      mailOptions.bcc = emailData.bccList;
+    }
+
+    const info = await transporter.sendMail(mailOptions);
+    return info;
+    
+  } catch (error) {
+    // ✅ Retry on timeout/network errors
+    if (retryCount < maxRetries && 
+        (error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT' || error.message.includes('Timeout'))) {
+      console.log(`⏳ Retry ${retryCount + 1}/${maxRetries} for ${emailData.recipient}`);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+      return sendEmail(smtpConfig, emailData, attachmentPath, retryCount + 1);
+    }
+    throw error;
   }
-
-  if (attachmentPath) {
-    mailOptions.attachments = [{ path: attachmentPath }];
-  }
-
-  // Handle BCC
-  if (emailData.useBcc && emailData.bccList && emailData.bccList.length > 0) {
-    mailOptions.bcc = emailData.bccList;
-  }
-
-  const info = await transporter.sendMail(mailOptions);
-  return info;
 }
 
 // Process email queue
@@ -162,20 +176,28 @@ async function processQueue(config) {
 
     } catch (error) {
       currentStats.failed++;
+      
+      // ✅ Better error logging
+      const errorMsg = error.code ? `[${error.code}] ${error.message}` : error.message;
       broadcast({
         type: 'email_failed',
         email: email.recipient,
-        error: error.message,
+        error: errorMsg,
         stats: currentStats
       });
       
-      console.error(`Failed to send to ${email.recipient}:`, error.message);
+      console.error(`❌ Failed to send to ${email.recipient}:`, {
+        code: error.code,
+        message: error.message,
+        command: error.command,
+        response: error.response
+      });
     }
   }
 
   isSending = false;
-  broadcast({ 
-    type: 'completed', 
+  broadcast({
+    type: 'completed',
     stats: currentStats,
     message: 'Email campaign completed!'
   });
@@ -188,7 +210,7 @@ app.post('/api/start', upload.single('attachment'), async (req, res) => {
     
     // Parse recipients
     const recipients = config.recipients.split('\n').map(e => e.trim()).filter(e => e);
-    
+
     // Parse SMTP list
     const smtpList = config.smtpList.split('\n').map(line => {
       const parts = line.split('|');
@@ -244,7 +266,6 @@ app.post('/api/start', upload.single('attachment'), async (req, res) => {
     processQueue(processConfig);
 
     res.json({ success: true, message: 'Email sending started', total: emailQueue.length });
-
   } catch (error) {
     console.error('Start error:', error);
     res.status(500).json({ error: error.message });
